@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otto - Online Photobooth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal_blue_traditional': {
+                            DEFAULT: '#00296b',
+                            100: '#000815',
+                            200: '#00102b',
+                            300: '#001940',
+                            400: '#002156',
+                            500: '#00296b',
+                            600: '#0048bc',
+                            700: '#0d6aff',
+                            800: '#5e9cff',
+                            900: '#aecdff'
+                        },
+                        'marian_blue': {
+                            DEFAULT: '#003f88',
+                            100: '#000d1c',
+                            200: '#001a37',
+                            300: '#002753',
+                            400: '#00336e',
+                            500: '#003f88',
+                            600: '#0063d4',
+                            700: '#2088ff',
+                            800: '#6ab0ff',
+                            900: '#b5d7ff'
+                        },
+                        'polynesian_blue': {
+                            DEFAULT: '#00509d',
+                            100: '#001020',
+                            200: '#00213f',
+                            300: '#00315f',
+                            400: '#00417e',
+                            500: '#00509d',
+                            600: '#0076e4',
+                            700: '#2c99ff',
+                            800: '#72bbff',
+                            900: '#b9ddff'
+                        },
+                        'mikado_yellow': {
+                            DEFAULT: '#fdc500',
+                            100: '#332800',
+                            200: '#665000',
+                            300: '#997800',
+                            400: '#cca000',
+                            500: '#fdc500',
+                            600: '#ffd333',
+                            700: '#ffde66',
+                            800: '#ffe999',
+                            900: '#fff4cc'
+                        },
+                        'gold': {
+                            DEFAULT: '#ffd500',
+                            100: '#332b00',
+                            200: '#665500',
+                            300: '#998000',
+                            400: '#ccaa00',
+                            500: '#ffd500',
+                            600: '#ffdd33',
+                            700: '#ffe666',
+                            800: '#ffee99',
+                            900: '#fff6cc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #00296b, #003f88, #00509d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(82, 82, 82, 0.2);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .camera-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .photo-frame {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .photo-frame:hover {
+            transform: rotate(2deg) scale(1.05) translateY(-8px);
+            box-shadow: 0 20px 40px rgba(82, 82, 82, 0.15);
+            border-color: rgba(82, 82, 82, 0.3);
+        }
+        
+        /* Perry the Platypus 3D Model Styles */
+        .perry-container {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        
+        .perry-3d {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+            animation: perry-rotate 8s infinite linear;
+        }
+        
+        @keyframes perry-rotate {
+            0% { transform: rotateY(0deg) rotateX(10deg); }
+            100% { transform: rotateY(360deg) rotateX(10deg); }
+        }
+        
+        .perry-body {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            border-radius: 50px 50px 30px 30px;
+            top: 60px;
+            left: 40px;
+            transform: translateZ(20px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .perry-head {
+            position: absolute;
+            width: 100px;
+            height: 70px;
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            border-radius: 50px;
+            top: 20px;
+            left: 50px;
+            transform: translateZ(30px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .perry-eye {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            top: 20px;
+            border: 2px solid #333;
+        }
+        
+        .perry-eye::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #333;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+        }
+        
+        .perry-eye-left {
+            left: 25px;
+        }
+        
+        .perry-eye-right {
+            right: 25px;
+        }
+        
+        .perry-beak {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: linear-gradient(135deg, #FF8C42, #FF6B35);
+            border-radius: 15px 15px 8px 8px;
+            bottom: 15px;
+            left: 35px;
+            transform: translateZ(5px);
+        }
+        
+        .perry-tail {
+            position: absolute;
+            width: 40px;
+            height: 25px;
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            border-radius: 20px;
+            top: 80px;
+            right: -10px;
+            transform: translateZ(10px) rotateZ(-20deg);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .perry-foot {
+            position: absolute;
+            width: 25px;
+            height: 15px;
+            background: linear-gradient(135deg, #FF8C42, #FF6B35);
+            border-radius: 12px;
+            bottom: -5px;
+            transform: translateZ(15px);
+        }
+        
+        .perry-foot-left {
+            left: 60px;
+        }
+        
+        .perry-foot-right {
+            right: 60px;
+        }
+        
+        .perry-hat {
+            position: absolute;
+            width: 80px;
+            height: 30px;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            border-radius: 40px 40px 0 0;
+            top: 5px;
+            left: 60px;
+            transform: translateZ(35px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        
+        .perry-hat::after {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 8px;
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            border-radius: 45px;
+            top: 25px;
+            left: -5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-white via-royal_blue_traditional-900 to-marian_blue-900 min-h-screen relative overflow-x-hidden">
+    <!-- Background Elements -->
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-mikado_yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation"></div>
+        <div class="absolute top-40 right-20 w-96 h-96 bg-polynesian_blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" style="animation-delay: -2s;"></div>
+        <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 floating-animation" style="animation-delay: -4s;"></div>
+    </div>
+    <!-- Navigation -->
+    <nav class="glass-effect sticky top-0 z-50 border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center">
+                    <button onclick="scrollToSection('home')" class="text-3xl font-display font-bold gradient-text hover:scale-105 transition-transform">🎯 Otto</button>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <button onclick="scrollToSection('home')" class="text-royal_blue_traditional-700 hover:text-royal_blue_traditional-900 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/20">Home</button>
+                        <button onclick="scrollToSection('features')" class="text-royal_blue_traditional-700 hover:text-royal_blue_traditional-900 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/20">Features</button>
+                        <button onclick="scrollToSection('gallery')" class="text-royal_blue_traditional-700 hover:text-royal_blue_traditional-900 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/20">Gallery</button>
+                        <div id="authButtons">
+                            <button onclick="showLogin()" class="text-royal_blue_traditional-700 hover:text-royal_blue_traditional-900 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/20">Login</button>
+                            <button onclick="showSignup()" class="bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all transform hover:scale-105">Sign Up</button>
+                        </div>
+                        <div id="userMenu" class="hidden">
+                            <span id="welcomeText" class="text-royal_blue_traditional-700 px-4 py-2 text-sm font-medium"></span>
+                            <button onclick="logout()" class="text-royal_blue_traditional-700 hover:text-royal_blue_traditional-900 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-white/20">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative overflow-hidden py-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center">
+                <h1 class="text-6xl md:text-8xl font-display font-bold mb-8">
+                    <span class="gradient-text">Capture. Create.</span><br>
+                    <span class="text-royal_blue_traditional-800">Celebrate.</span>
+                </h1>
+                <p class="text-xl text-royal_blue_traditional-700/80 mb-12 max-w-3xl mx-auto leading-relaxed">
+                    Transform your moments into memories with Otto's premium online photobooth experience. 
+                    Professional quality photos, instant sharing, endless fun.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <button onclick="startPhotobooth()" class="bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all transform hover:scale-105 glow-effect shadow-2xl">
+                        📸 Start Photo Session
+                    </button>
+                    <button onclick="viewGallery()" class="glass-effect text-royal_blue_traditional-700 border-2 border-mikado_yellow-400/50 px-10 py-5 rounded-full text-lg font-semibold transition-all transform hover:scale-105 hover:bg-mikado_yellow-100/30">
+                        🖼️ View Gallery
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Perry the Platypus 3D Model -->
+            <div class="mt-16 flex justify-center">
+                <div class="perry-container camera-animation">
+                    <div class="perry-3d">
+                        <!-- Perry's Body -->
+                        <div class="perry-body"></div>
+                        <!-- Perry's Head -->
+                        <div class="perry-head">
+                            <!-- Eyes -->
+                            <div class="perry-eye perry-eye-left"></div>
+                            <div class="perry-eye perry-eye-right"></div>
+                            <!-- Beak -->
+                            <div class="perry-beak"></div>
+                        </div>
+                        <!-- Perry's Tail -->
+                        <div class="perry-tail"></div>
+                        <!-- Perry's Feet -->
+                        <div class="perry-foot perry-foot-left"></div>
+                        <div class="perry-foot perry-foot-right"></div>
+                        <!-- Perry's Hat (Agent P) -->
+                        <div class="perry-hat"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl font-display font-bold text-royal_blue_traditional-800 mb-6">Why Choose <span class="gradient-text">Otto?</span></h2>
+                <p class="text-xl text-royal_blue_traditional-700/80 max-w-2xl mx-auto">Professional photobooth experience, right from your browser</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="glass-effect rounded-3xl p-10 card-hover border border-mikado_yellow-300/30">
+                    <div class="text-6xl mb-6 text-center">✨</div>
+                    <h3 class="text-2xl font-display font-semibold text-royal_blue_traditional-800 mb-4 text-center">Instant Filters</h3>
+                    <p class="text-royal_blue_traditional-700/80 text-center mb-6 leading-relaxed">Apply beautiful filters and effects in real-time. From vintage vibes to modern aesthetics.</p>
+                    <div class="text-center">
+                        <button onclick="showFilters()" class="text-mikado_yellow-600 hover:text-mikado_yellow-800 font-semibold transition-colors">Try Filters →</button>
+                    </div>
+                </div>
+                
+                <div class="glass-effect rounded-3xl p-10 card-hover border border-gold-300/30">
+                    <div class="text-6xl mb-6 text-center">🎭</div>
+                    <h3 class="text-2xl font-display font-semibold text-royal_blue_traditional-800 mb-4 text-center">Fun Props</h3>
+                    <p class="text-royal_blue_traditional-700/80 text-center mb-6 leading-relaxed">Virtual props and accessories to make your photos more entertaining and memorable.</p>
+                    <div class="text-center">
+                        <button onclick="showProps()" class="text-gold-600 hover:text-gold-800 font-semibold transition-colors">Browse Props →</button>
+                    </div>
+                </div>
+                
+                <div class="glass-effect rounded-3xl p-10 card-hover border border-polynesian_blue-300/30">
+                    <div class="text-6xl mb-6 text-center">📤</div>
+                    <h3 class="text-2xl font-display font-semibold text-royal_blue_traditional-800 mb-4 text-center">Easy Sharing</h3>
+                    <p class="text-royal_blue_traditional-700/80 text-center mb-6 leading-relaxed">Download instantly or share directly to social media. Your memories, your way.</p>
+                    <div class="text-center">
+                        <button onclick="showSharing()" class="text-polynesian_blue-600 hover:text-polynesian_blue-800 font-semibold transition-colors">Learn More →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl font-display font-bold text-royal_blue_traditional-800 mb-6">Recent <span class="gradient-text">Captures</span></h2>
+                <p class="text-xl text-royal_blue_traditional-700/80">See what others have created with Otto</p>
+            </div>
+            
+            <div class="photo-grid" id="photoGrid">
+                <!-- Sample photos will be generated here -->
+            </div>
+            
+            <div class="text-center mt-16" id="loadMoreSection" style="display: none;">
+                <button onclick="loadMorePhotos()" class="bg-gradient-to-r from-polynesian_blue-500 to-marian_blue-600 hover:from-polynesian_blue-600 hover:to-marian_blue-700 text-white px-8 py-4 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg">
+                    Load More Photos
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-royal_blue_traditional-800 to-marian_blue-900 text-white py-16 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center">
+                <h3 class="text-3xl font-display font-bold mb-6 text-white">🎯 Otto</h3>
+                <p class="text-mikado_yellow-200 mb-8 text-lg">Making memories, one photo at a time</p>
+
+                <div class="mt-12 pt-8 border-t border-polynesian_blue-700/50">
+                    <p class="text-mikado_yellow-300">&copy; 2024 Otto. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-white/30">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-display font-semibold text-minimal-800">📸 Photobooth Session</h3>
+                <button onclick="closeModal()" class="text-minimal-600 hover:text-minimal-800 text-3xl transition-colors">&times;</button>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Camera Preview -->
+                <div class="glass-effect rounded-2xl p-6 text-center border border-white/30">
+                    <div class="relative mb-6">
+                        <video id="videoElement" class="w-full h-72 bg-gradient-to-br from-aesthetic-100 to-cream-100 rounded-2xl object-cover hidden transition-all duration-300 shadow-lg" autoplay muted playsinline style="filter: none;"></video>
+                        <canvas id="canvasElement" class="w-full h-72 bg-gradient-to-br from-aesthetic-100 to-cream-100 rounded-2xl hidden"></canvas>
+                        <div id="cameraPlaceholder" class="w-full h-72 bg-gradient-to-br from-aesthetic-100 to-cream-100 rounded-2xl flex items-center justify-center text-8xl shadow-inner">📷</div>
+                    </div>
+                    <p id="cameraStatus" class="text-aesthetic-700 mb-6 text-lg">Click "Start Camera" to begin!</p>
+                    <div class="flex gap-3 justify-center flex-wrap">
+                        <button onclick="startCamera()" id="startCameraBtn" class="bg-gradient-to-r from-aesthetic-500 to-aesthetic-600 hover:from-aesthetic-600 hover:to-aesthetic-700 text-black px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg">
+                            📹 Start Camera
+                        </button>
+                        <button onclick="takePhoto()" id="takePhotoBtn" class="bg-gradient-to-r from-cream-500 to-cream-600 hover:from-cream-600 hover:to-cream-700 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hidden">
+                            📸 Take Photo
+                        </button>
+                        <button onclick="switchCamera()" id="switchCameraBtn" class="glass-effect text-aesthetic-700 border-2 border-aesthetic-300/50 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 hover:bg-white/30 hidden">
+                            🔄 Switch Camera
+                        </button>
+                        <button onclick="stopCamera()" id="stopCameraBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg hidden">
+                            ⏹️ Stop
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Live Photostrip Preview -->
+                <div class="glass-effect rounded-2xl p-6 border border-white/30">
+                    <h4 class="text-xl font-display font-semibold text-aesthetic-800 mb-6 text-center">📸 Your Strip Preview</h4>
+                    <div class="bg-white rounded-xl p-4 shadow-inner">
+                        <canvas id="previewCanvas" class="w-full h-[500px] bg-white rounded-lg border-2 border-gray-200" style="image-rendering: pixelated;"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-aesthetic-600">
+                            <span id="photoCount">0</span>/4 photos taken
+                        </p>
+                        <div class="flex justify-center mt-2 space-x-2">
+                            <div id="dot1" class="w-3 h-3 rounded-full bg-gray-300"></div>
+                            <div id="dot2" class="w-3 h-3 rounded-full bg-gray-300"></div>
+                            <div id="dot3" class="w-3 h-3 rounded-full bg-gray-300"></div>
+                            <div id="dot4" class="w-3 h-3 rounded-full bg-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filters Panel -->
+                <div class="glass-effect rounded-2xl border border-white/30 p-6">
+                    <h4 class="text-xl font-display font-semibold text-aesthetic-800 mb-6">✨ Choose Your Filter</h4>
+                    <div class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto">
+                        <button onclick="applyFilter('none')" class="filter-btn glass-effect hover:bg-white/30 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📷</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Original</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('vintage')" class="filter-btn bg-amber-100/50 hover:bg-amber-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📸</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Vintage</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('noir')" class="filter-btn bg-gray-800/50 text-white hover:bg-gray-700/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🎭</div>
+                            <div class="text-sm font-semibold">Noir</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('warm')" class="filter-btn bg-orange-100/50 hover:bg-orange-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌅</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Warm</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('cool')" class="filter-btn bg-blue-100/50 hover:bg-blue-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">❄️</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Cool</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('dreamy')" class="filter-btn bg-purple-100/50 hover:bg-purple-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">💜</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Dreamy</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('bright')" class="filter-btn bg-yellow-100/50 hover:bg-yellow-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">☀️</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Bright</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('dramatic')" class="filter-btn bg-red-100/50 hover:bg-red-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🎪</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Dramatic</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('soft')" class="filter-btn bg-pink-100/50 hover:bg-pink-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌸</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Soft</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('neon')" class="filter-btn bg-green-100/50 hover:bg-green-200/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">💚</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Neon</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('sepia')" class="filter-btn bg-yellow-200/50 hover:bg-yellow-300/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📜</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Sepia</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('polaroid')" class="filter-btn bg-blue-50/50 hover:bg-blue-100/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📷</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Polaroid</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('lomo')" class="filter-btn bg-red-200/50 hover:bg-red-300/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🎞️</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Lomo</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('cyberpunk')" class="filter-btn bg-purple-200/50 hover:bg-purple-300/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌆</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Cyberpunk</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('pastel')" class="filter-btn bg-pink-50/50 hover:bg-pink-100/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌸</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Pastel</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('retro')" class="filter-btn bg-orange-200/50 hover:bg-orange-300/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📺</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Retro</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('vaporwave')" class="filter-btn bg-gradient-to-r from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌴</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Vaporwave</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('film')" class="filter-btn bg-gray-200/50 hover:bg-gray-300/50 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🎬</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Film Grain</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('sunset')" class="filter-btn bg-gradient-to-r from-orange-100 to-red-100 hover:from-orange-200 hover:to-red-200 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🌅</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Golden Hour</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('arctic')" class="filter-btn bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">🧊</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Arctic</div>
+                        </button>
+                        
+                        <button onclick="applyFilter('instagram')" class="filter-btn bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 p-4 rounded-xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                            <div class="text-3xl mb-2">📱</div>
+                            <div class="text-sm font-semibold text-aesthetic-700">Insta</div>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 p-4 glass-effect rounded-xl border border-white/20">
+                        <p class="text-sm text-aesthetic-700 text-center">
+                            <span class="font-semibold">Current Filter:</span> <span id="currentFilter" class="font-medium text-aesthetic-600">Original</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Options Modal -->
+    <div id="saveModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl p-8 max-w-2xl w-full border border-white/30">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-display font-semibold text-aesthetic-800 mb-4">🎉 Your Photostrip is Ready!</h3>
+                <p class="text-aesthetic-600">What would you like to do with your amazing photos?</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <button onclick="downloadPhotostrip()" class="glass-effect hover:bg-white/30 p-6 rounded-2xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">💾</div>
+                    <h4 class="text-xl font-semibold text-aesthetic-800 mb-2">Download</h4>
+                    <p class="text-sm text-aesthetic-600">Save to your device</p>
+                </button>
+                
+                <button onclick="sharePhotostrip()" class="glass-effect hover:bg-white/30 p-6 rounded-2xl text-center transition-all border-2 border-transparent hover:border-aesthetic-300 transform hover:scale-105">
+                    <div class="text-5xl mb-4">📤</div>
+                    <h4 class="text-xl font-semibold text-aesthetic-800 mb-2">Share</h4>
+                    <p class="text-sm text-aesthetic-600">Post to social media</p>
+                </button>
+            </div>
+            
+            <div class="flex gap-4 justify-center">
+                <button onclick="retakePhotos()" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105">
+                    🔄 Retake Photos
+                </button>
+                <button onclick="closeSaveModal()" class="glass-effect text-aesthetic-700 border-2 border-aesthetic-300/50 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 hover:bg-white/30">
+                    ❌ Discard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl p-8 max-w-md w-full border border-white/30">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-3xl font-display font-semibold text-royal_blue_traditional-800">🔐 Login</h3>
+                <button onclick="closeLoginModal()" class="text-royal_blue_traditional-600 hover:text-royal_blue_traditional-800 text-3xl transition-colors">&times;</button>
+            </div>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
+                    🚀 Login
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-royal_blue_traditional-600">Don't have an account? 
+                    <button onclick="switchToSignup()" class="text-mikado_yellow-600 hover:text-mikado_yellow-800 font-semibold transition-colors">Sign up here</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl p-8 max-w-md w-full border border-white/30">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-3xl font-display font-semibold text-royal_blue_traditional-800">📝 Sign Up</h3>
+                <button onclick="closeSignupModal()" class="text-royal_blue_traditional-600 hover:text-royal_blue_traditional-800 text-3xl transition-colors">&times;</button>
+            </div>
+            
+            <form onsubmit="handleSignup(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Full Name</label>
+                    <input type="text" id="signupName" required class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Email</label>
+                    <input type="email" id="signupEmail" required class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Password</label>
+                    <input type="password" id="signupPassword" required minlength="6" class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-royal_blue_traditional-700 mb-2">Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" required minlength="6" class="w-full px-4 py-3 rounded-xl border border-royal_blue_traditional-300/50 focus:border-royal_blue_traditional-500 focus:ring-2 focus:ring-royal_blue_traditional-200 transition-all bg-white/80 backdrop-blur-sm">
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg">
+                    🎉 Create Account
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-royal_blue_traditional-600">Already have an account? 
+                    <button onclick="switchToLogin()" class="text-mikado_yellow-600 hover:text-mikado_yellow-800 font-semibold transition-colors">Login here</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Modal -->
+    <div id="filtersModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="glass-effect rounded-3xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-white/30">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-3xl font-display font-semibold text-aesthetic-800">✨ Photo Filters</h3>
+                <button onclick="closeFiltersModal()" class="text-aesthetic-600 hover:text-aesthetic-800 text-3xl transition-colors">&times;</button>
+            </div>
+            
+            <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="filter-preview-card bg-gray-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('none')">
+                    <div class="text-4xl mb-2" style="filter: none;">📷</div>
+                    <h4 class="font-semibold text-matcha-800">Original</h4>
+                    <p class="text-sm text-matcha-600">No filter applied</p>
+                </div>
+                
+                <div class="filter-preview-card bg-amber-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('vintage')">
+                    <div class="text-4xl mb-2" style="filter: sepia(0.8) contrast(1.2) brightness(0.9);">📸</div>
+                    <h4 class="font-semibold text-matcha-800">Vintage</h4>
+                    <p class="text-sm text-matcha-600">Classic retro look</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gray-800 text-white rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('noir')">
+                    <div class="text-4xl mb-2" style="filter: grayscale(1) contrast(1.3);">🎭</div>
+                    <h4 class="font-semibold">Film Noir</h4>
+                    <p class="text-sm text-gray-300">Black & white drama</p>
+                </div>
+                
+                <div class="filter-preview-card bg-orange-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('warm')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(15deg) saturate(1.2) brightness(1.1);">🌅</div>
+                    <h4 class="font-semibold text-matcha-800">Warm Sunset</h4>
+                    <p class="text-sm text-matcha-600">Golden hour vibes</p>
+                </div>
+                
+                <div class="filter-preview-card bg-blue-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('cool')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(180deg) saturate(1.1) brightness(0.95);">❄️</div>
+                    <h4 class="font-semibold text-matcha-800">Cool Breeze</h4>
+                    <p class="text-sm text-matcha-600">Fresh and crisp</p>
+                </div>
+                
+                <div class="filter-preview-card bg-purple-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('dreamy')">
+                    <div class="text-4xl mb-2" style="filter: blur(0.5px) brightness(1.1) saturate(1.3);">💜</div>
+                    <h4 class="font-semibold text-matcha-800">Dreamy</h4>
+                    <p class="text-sm text-matcha-600">Soft and ethereal</p>
+                </div>
+                
+                <div class="filter-preview-card bg-yellow-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('bright')">
+                    <div class="text-4xl mb-2" style="filter: brightness(1.3) contrast(1.1);">☀️</div>
+                    <h4 class="font-semibold text-matcha-800">Bright Day</h4>
+                    <p class="text-sm text-matcha-600">Enhanced brightness</p>
+                </div>
+                
+                <div class="filter-preview-card bg-red-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('dramatic')">
+                    <div class="text-4xl mb-2" style="filter: contrast(1.4) saturate(1.3) brightness(0.9);">🎪</div>
+                    <h4 class="font-semibold text-matcha-800">Dramatic</h4>
+                    <p class="text-sm text-matcha-600">High contrast pop</p>
+                </div>
+                
+                <div class="filter-preview-card bg-yellow-200 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('sepia')">
+                    <div class="text-4xl mb-2" style="filter: sepia(1) contrast(1.1) brightness(1.05);">📜</div>
+                    <h4 class="font-semibold text-matcha-800">Sepia</h4>
+                    <p class="text-sm text-matcha-600">Classic brown tone</p>
+                </div>
+                
+                <div class="filter-preview-card bg-blue-50 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('polaroid')">
+                    <div class="text-4xl mb-2" style="filter: contrast(1.2) brightness(1.1) saturate(0.9) sepia(0.1);">📷</div>
+                    <h4 class="font-semibold text-matcha-800">Polaroid</h4>
+                    <p class="text-sm text-matcha-600">Instant camera feel</p>
+                </div>
+                
+                <div class="filter-preview-card bg-red-200 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('lomo')">
+                    <div class="text-4xl mb-2" style="filter: contrast(1.5) saturate(1.1) brightness(0.9) hue-rotate(-10deg);">🎞️</div>
+                    <h4 class="font-semibold text-matcha-800">Lomo</h4>
+                    <p class="text-sm text-matcha-600">Lomography style</p>
+                </div>
+                
+                <div class="filter-preview-card bg-purple-200 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('cyberpunk')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(270deg) saturate(1.8) contrast(1.3) brightness(0.8);">🌆</div>
+                    <h4 class="font-semibold text-matcha-800">Cyberpunk</h4>
+                    <p class="text-sm text-matcha-600">Futuristic neon</p>
+                </div>
+                
+                <div class="filter-preview-card bg-pink-50 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('pastel')">
+                    <div class="text-4xl mb-2" style="filter: saturate(0.7) brightness(1.2) contrast(0.9) hue-rotate(10deg);">🌸</div>
+                    <h4 class="font-semibold text-matcha-800">Pastel</h4>
+                    <p class="text-sm text-matcha-600">Soft and sweet</p>
+                </div>
+                
+                <div class="filter-preview-card bg-orange-200 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('retro')">
+                    <div class="text-4xl mb-2" style="filter: sepia(0.4) saturate(1.3) contrast(1.2) brightness(0.95) hue-rotate(15deg);">📺</div>
+                    <h4 class="font-semibold text-matcha-800">Retro</h4>
+                    <p class="text-sm text-matcha-600">80s throwback</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gradient-to-r from-pink-100 to-purple-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('vaporwave')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(320deg) saturate(1.5) contrast(1.1) brightness(1.1);">🌴</div>
+                    <h4 class="font-semibold text-matcha-800">Vaporwave</h4>
+                    <p class="text-sm text-matcha-600">Aesthetic vibes</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gray-200 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('film')">
+                    <div class="text-4xl mb-2" style="filter: contrast(1.1) brightness(0.95) saturate(0.9) sepia(0.1);">🎬</div>
+                    <h4 class="font-semibold text-matcha-800">Film Grain</h4>
+                    <p class="text-sm text-matcha-600">Analog texture</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gradient-to-r from-orange-100 to-red-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('sunset')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) contrast(1.1);">🌅</div>
+                    <h4 class="font-semibold text-matcha-800">Golden Hour</h4>
+                    <p class="text-sm text-matcha-600">Warm sunset glow</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('arctic')">
+                    <div class="text-4xl mb-2" style="filter: hue-rotate(200deg) saturate(0.8) brightness(1.2) contrast(1.1);">🧊</div>
+                    <h4 class="font-semibold text-matcha-800">Arctic</h4>
+                    <p class="text-sm text-matcha-600">Cool ice tones</p>
+                </div>
+                
+                <div class="filter-preview-card bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4 text-center hover:shadow-lg transition-all cursor-pointer" onclick="previewFilter('instagram')">
+                    <div class="text-4xl mb-2" style="filter: saturate(1.2) contrast(1.1) brightness(1.05) hue-rotate(-5deg);">📱</div>
+                    <h4 class="font-semibold text-matcha-800">Insta</h4>
+                    <p class="text-sm text-matcha-600">Social media ready</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <button onclick="startPhotobooth()" class="bg-matcha-500 hover:bg-matcha-600 text-white px-8 py-3 rounded-full font-semibold transition-all">
+                    📸 Start Photo Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling function
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Camera variables
+        let videoStream = null;
+        let currentCamera = 'user'; // 'user' for front camera, 'environment' for back camera
+        let previewPhotos = []; // Store photos for live preview
+        let previewCanvas = null;
+        let previewCtx = null;
+        let isPhotoSequenceActive = false; // Track if photo sequence is running
+        let photoSequenceTimeouts = []; // Store timeout IDs for cancellation
+        
+        // Photobooth functions
+        function startPhotobooth() {
+            document.getElementById('photoModal').classList.remove('hidden');
+            initializePreview();
+            showNotification('📸 Photobooth started! Get ready to pose!');
+        }
+        
+        function initializePreview() {
+            previewCanvas = document.getElementById('previewCanvas');
+            previewCtx = previewCanvas.getContext('2d');
+            previewPhotos = [];
+            updatePreview();
+            updatePhotoCount();
+        }
+
+        function closeModal() {
+            // Cancel any ongoing photo sequence
+            if (isPhotoSequenceActive) {
+                cancelPhotoSequence();
+            }
+            
+            document.getElementById('photoModal').classList.add('hidden');
+            stopCamera();
+            previewPhotos = [];
+        }
+        
+        function updatePreview() {
+            if (!previewCanvas || !previewCtx) return;
+            
+            // Set canvas size for preview (smaller version of actual strip)
+            const stripWidth = 200;
+            const stripHeight = 800;
+            const photoHeight = 175;
+            const spacing = 25;
+            const headerHeight = 40;
+            
+            previewCanvas.width = stripWidth;
+            previewCanvas.height = stripHeight;
+            
+            // Clear and set white background
+            previewCtx.fillStyle = 'white';
+            previewCtx.fillRect(0, 0, stripWidth, stripHeight);
+            
+            // Add header
+            previewCtx.fillStyle = '#262626';
+            previewCtx.font = 'bold 12px Inter';
+            previewCtx.textAlign = 'center';
+            previewCtx.fillText('📸 OTTO PHOTOBOOTH', stripWidth / 2, 20);
+            
+            previewCtx.font = '8px Inter';
+            previewCtx.fillStyle = '#737373';
+            previewCtx.fillText(new Date().toLocaleDateString(), stripWidth / 2, 32);
+            
+            // Draw existing photos and placeholders
+            for (let i = 0; i < 4; i++) {
+                const yPosition = headerHeight + spacing + (i * (photoHeight + spacing));
+                const photoWidth = stripWidth - (spacing * 2);
+                const xPosition = spacing;
+                
+                if (i < previewPhotos.length) {
+                    // Draw actual photo
+                    const img = new Image();
+                    img.onload = () => {
+                        const aspectRatio = img.width / img.height;
+                        let drawWidth = photoWidth;
+                        let drawHeight = photoWidth / aspectRatio;
+                        
+                        if (drawHeight > photoHeight) {
+                            drawHeight = photoHeight;
+                            drawWidth = photoHeight * aspectRatio;
+                        }
+                        
+                        const centerX = (stripWidth - drawWidth) / 2;
+                        
+                        previewCtx.save();
+                        previewCtx.beginPath();
+                        previewCtx.roundRect(centerX, yPosition, drawWidth, drawHeight, 5);
+                        previewCtx.clip();
+                        previewCtx.drawImage(img, centerX, yPosition, drawWidth, drawHeight);
+                        previewCtx.restore();
+                        
+                        // Add border
+                        previewCtx.strokeStyle = '#e5e5e5';
+                        previewCtx.lineWidth = 1;
+                        previewCtx.beginPath();
+                        previewCtx.roundRect(centerX, yPosition, drawWidth, drawHeight, 5);
+                        previewCtx.stroke();
+                    };
+                    img.src = previewPhotos[i];
+                } else {
+                    // Draw placeholder
+                    previewCtx.fillStyle = '#f5f5f5';
+                    previewCtx.beginPath();
+                    previewCtx.roundRect(xPosition, yPosition, photoWidth, photoHeight, 5);
+                    previewCtx.fill();
+                    
+                    previewCtx.strokeStyle = '#d4d4d4';
+                    previewCtx.lineWidth = 2;
+                    previewCtx.setLineDash([5, 5]);
+                    previewCtx.beginPath();
+                    previewCtx.roundRect(xPosition, yPosition, photoWidth, photoHeight, 5);
+                    previewCtx.stroke();
+                    previewCtx.setLineDash([]);
+                    
+                    // Add placeholder text
+                    previewCtx.fillStyle = '#a3a3a3';
+                    previewCtx.font = '24px Inter';
+                    previewCtx.textAlign = 'center';
+                    previewCtx.fillText('📷', stripWidth / 2, yPosition + photoHeight / 2 + 8);
+                    
+                    previewCtx.font = '10px Inter';
+                    previewCtx.fillText(`Photo ${i + 1}`, stripWidth / 2, yPosition + photoHeight / 2 + 25);
+                }
+            }
+            
+            // Add footer
+            const footerY = stripHeight - 25;
+            previewCtx.fillStyle = '#737373';
+            previewCtx.font = '7px Inter';
+            previewCtx.textAlign = 'center';
+            previewCtx.fillText('Made with Otto ✨', stripWidth / 2, footerY);
+            previewCtx.fillText('otto-photobooth.com', stripWidth / 2, footerY + 10);
+        }
+        
+        function updatePhotoCount() {
+            document.getElementById('photoCount').textContent = previewPhotos.length;
+            
+            // Update progress dots
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i <= previewPhotos.length) {
+                    dot.className = 'w-3 h-3 rounded-full bg-green-500';
+                } else {
+                    dot.className = 'w-3 h-3 rounded-full bg-gray-300';
+                }
+            }
+        }
+
+        async function startCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: currentCamera,
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                };
+                
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const videoElement = document.getElementById('videoElement');
+                const placeholder = document.getElementById('cameraPlaceholder');
+                const status = document.getElementById('cameraStatus');
+                
+                videoElement.srcObject = videoStream;
+                videoElement.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                
+                // Apply mirror effect for front camera
+                if (currentCamera === 'user') {
+                    videoElement.style.transform = 'scaleX(-1)';
+                } else {
+                    videoElement.style.transform = 'scaleX(1)';
+                }
+                
+                // Show/hide buttons
+                document.getElementById('startCameraBtn').classList.add('hidden');
+                document.getElementById('takePhotoBtn').classList.remove('hidden');
+                document.getElementById('switchCameraBtn').classList.remove('hidden');
+                document.getElementById('stopCameraBtn').classList.remove('hidden');
+                
+                status.textContent = 'Camera ready! Strike a pose!';
+                showNotification('📹 Camera started successfully!');
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                document.getElementById('cameraStatus').textContent = 'Camera access denied or not available';
+                showNotification('❌ Camera access failed. Please allow camera permissions.');
+            }
+        }
+        
+        function stopCamera() {
+            // Cancel any ongoing photo sequence
+            if (isPhotoSequenceActive) {
+                cancelPhotoSequence();
+            }
+            
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            
+            const videoElement = document.getElementById('videoElement');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            const status = document.getElementById('cameraStatus');
+            
+            videoElement.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            
+            // Show/hide buttons
+            document.getElementById('startCameraBtn').classList.remove('hidden');
+            document.getElementById('takePhotoBtn').classList.add('hidden');
+            document.getElementById('switchCameraBtn').classList.add('hidden');
+            document.getElementById('stopCameraBtn').classList.add('hidden');
+            
+            status.textContent = 'Click "Start Camera" to begin!';
+            showNotification('⏹️ Camera stopped');
+        }
+
+        function takePhoto() {
+            const videoElement = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvasElement');
+            const ctx = canvas.getContext('2d');
+            
+            if (!videoStream) {
+                showNotification('❌ Please start the camera first!');
+                return;
+            }
+            
+            if (isPhotoSequenceActive) {
+                showNotification('📸 Photo sequence already in progress!');
+                return;
+            }
+            
+            // Reset preview for new photo session
+            previewPhotos = [];
+            updatePreview();
+            updatePhotoCount();
+            
+            // Mark sequence as active
+            isPhotoSequenceActive = true;
+            
+            showNotification('📸 Get ready! Taking 4 photos for your strip...');
+            
+            // Initialize photostrip data
+            const photoStripData = [];
+            
+            // Take 4 photos with countdown
+            takePhotoSequence(0, videoElement, canvas, ctx, photoStripData);
+        }
+        
+        function takePhotoSequence(photoIndex, videoElement, canvas, ctx, photoStripData) {
+            // Check if sequence was cancelled
+            if (!isPhotoSequenceActive) {
+                return;
+            }
+            
+            if (photoIndex >= 4) {
+                // Create combined photostrip
+                createPhotoStrip(photoStripData, videoElement, canvas, ctx);
+                showNotification('🎉 Photo strip complete! Choose what to do next!');
+                isPhotoSequenceActive = false;
+                return;
+            }
+            
+            // Countdown for each photo
+            const countdown = 3;
+            showCountdown(countdown, () => {
+                // Check again if sequence was cancelled during countdown
+                if (!isPhotoSequenceActive) {
+                    return;
+                }
+                
+                // Set canvas size for individual photo capture
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                
+                // Apply current filter to canvas
+                ctx.filter = videoElement.style.filter || 'none';
+                
+                // Flip the image horizontally for front camera (mirror effect)
+                if (currentCamera === 'user') {
+                    ctx.save();
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(videoElement, -canvas.width, 0);
+                    ctx.restore();
+                } else {
+                    // Draw normally for back camera
+                    ctx.drawImage(videoElement, 0, 0);
+                }
+                
+                // Store photo data for strip creation
+                const photoData = canvas.toDataURL('image/png');
+                photoStripData.push(photoData);
+                
+                // Add to preview
+                previewPhotos.push(photoData);
+                updatePreview();
+                updatePhotoCount();
+                
+                showNotification(`📸 Photo ${photoIndex + 1}/4 captured!`);
+                
+                // Wait 2 seconds before next photo
+                const timeoutId = setTimeout(() => {
+                    takePhotoSequence(photoIndex + 1, videoElement, canvas, ctx, photoStripData);
+                }, 2000);
+                
+                // Store timeout ID for potential cancellation
+                photoSequenceTimeouts.push(timeoutId);
+            });
+        }
+        
+        function createPhotoStrip(photoStripData, videoElement, canvas, ctx) {
+            // Create photostrip canvas - classic 2:8 ratio (width:height)
+            const stripWidth = 400;
+            const stripHeight = 1600;
+            const photoHeight = 350; // Height for each photo
+            const spacing = 50; // Space between photos and margins
+            const headerHeight = 80;
+            const footerHeight = 80;
+            
+            canvas.width = stripWidth;
+            canvas.height = stripHeight;
+            
+            // Clear canvas and set white background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, stripWidth, stripHeight);
+            
+            // Add header
+            ctx.fillStyle = '#262626';
+            ctx.font = 'bold 24px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('📸 OTTO PHOTOBOOTH', stripWidth / 2, 40);
+            
+            ctx.font = '16px Inter';
+            ctx.fillStyle = '#737373';
+            ctx.fillText(new Date().toLocaleDateString(), stripWidth / 2, 65);
+            
+            // Add each photo to the strip
+            photoStripData.forEach((photoData, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    const yPosition = headerHeight + spacing + (index * (photoHeight + spacing));
+                    
+                    // Calculate dimensions to fit photo in strip while maintaining aspect ratio
+                    const photoWidth = stripWidth - (spacing * 2);
+                    const aspectRatio = img.width / img.height;
+                    let drawWidth = photoWidth;
+                    let drawHeight = photoWidth / aspectRatio;
+                    
+                    // If height is too large, scale by height instead
+                    if (drawHeight > photoHeight) {
+                        drawHeight = photoHeight;
+                        drawWidth = photoHeight * aspectRatio;
+                    }
+                    
+                    // Center the photo horizontally
+                    const xPosition = (stripWidth - drawWidth) / 2;
+                    
+                    // Draw photo with rounded corners effect
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(xPosition, yPosition, drawWidth, drawHeight, 10);
+                    ctx.clip();
+                    ctx.drawImage(img, xPosition, yPosition, drawWidth, drawHeight);
+                    ctx.restore();
+                    
+                    // Add photo border
+                    ctx.strokeStyle = '#e5e5e5';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.roundRect(xPosition, yPosition, drawWidth, drawHeight, 10);
+                    ctx.stroke();
+                    
+                    // If this is the last photo, finalize the strip
+                    if (index === photoStripData.length - 1) {
+                        // Add footer
+                        const footerY = stripHeight - footerHeight + 30;
+                        ctx.fillStyle = '#737373';
+                        ctx.font = '14px Inter';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Made with Otto ✨', stripWidth / 2, footerY);
+                        ctx.fillText('otto-photobooth.com', stripWidth / 2, footerY + 20);
+                        
+                        // Store the complete strip for save options
+                        canvas.toBlob((blob) => {
+                            showSaveOptions(blob);
+                        });
+                    }
+                };
+                img.src = photoData;
+            });
+        }
+        
+        function showCountdown(count, callback) {
+            // Check if sequence was cancelled
+            if (!isPhotoSequenceActive) {
+                return;
+            }
+            
+            if (count <= 0) {
+                callback();
+                return;
+            }
+            
+            showNotification(`📸 ${count}...`);
+            const timeoutId = setTimeout(() => {
+                showCountdown(count - 1, callback);
+            }, 1000);
+            
+            // Store timeout ID for potential cancellation
+            photoSequenceTimeouts.push(timeoutId);
+        }
+
+        function cancelPhotoSequence() {
+            // Mark sequence as inactive
+            isPhotoSequenceActive = false;
+            
+            // Clear all pending timeouts
+            photoSequenceTimeouts.forEach(timeoutId => {
+                clearTimeout(timeoutId);
+            });
+            photoSequenceTimeouts = [];
+            
+            // Reset preview
+            previewPhotos = [];
+            updatePreview();
+            updatePhotoCount();
+            
+            showNotification('❌ Photo sequence cancelled');
+        }
+
+        async function switchCamera() {
+            if (!videoStream) {
+                showNotification('❌ Please start the camera first!');
+                return;
+            }
+            
+            // Cancel any ongoing photo sequence
+            if (isPhotoSequenceActive) {
+                cancelPhotoSequence();
+            }
+            
+            // Stop current stream
+            videoStream.getTracks().forEach(track => track.stop());
+            
+            // Switch camera
+            currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+            
+            // Start new stream
+            await startCamera();
+            showNotification('🔄 Camera switched!');
+        }
+
+        // Feature functions
+        function showFilters() {
+            document.getElementById('filtersModal').classList.remove('hidden');
+            showNotification('✨ Filters panel opened! Choose your style!');
+        }
+        
+        function closeFiltersModal() {
+            document.getElementById('filtersModal').classList.add('hidden');
+        }
+        
+        // Filter functions
+        let currentFilterName = 'Original';
+        
+        function applyFilter(filterType) {
+            const videoElement = document.getElementById('videoElement');
+            const filterDisplay = document.getElementById('currentFilter');
+            
+            // Remove active class from all filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-matcha-500');
+            });
+            
+            // Add active class to clicked button
+            event.target.closest('.filter-btn').classList.add('ring-2', 'ring-matcha-500');
+            
+            switch(filterType) {
+                case 'none':
+                    videoElement.style.filter = 'none';
+                    currentFilterName = 'Original';
+                    break;
+                case 'vintage':
+                    videoElement.style.filter = 'sepia(0.8) contrast(1.2) brightness(0.9)';
+                    currentFilterName = 'Vintage';
+                    break;
+                case 'noir':
+                    videoElement.style.filter = 'grayscale(1) contrast(1.3)';
+                    currentFilterName = 'Film Noir';
+                    break;
+                case 'warm':
+                    videoElement.style.filter = 'hue-rotate(15deg) saturate(1.2) brightness(1.1)';
+                    currentFilterName = 'Warm Sunset';
+                    break;
+                case 'cool':
+                    videoElement.style.filter = 'hue-rotate(180deg) saturate(1.1) brightness(0.95)';
+                    currentFilterName = 'Cool Breeze';
+                    break;
+                case 'dreamy':
+                    videoElement.style.filter = 'blur(0.5px) brightness(1.1) saturate(1.3)';
+                    currentFilterName = 'Dreamy';
+                    break;
+                case 'bright':
+                    videoElement.style.filter = 'brightness(1.3) contrast(1.1)';
+                    currentFilterName = 'Bright Day';
+                    break;
+                case 'dramatic':
+                    videoElement.style.filter = 'contrast(1.4) saturate(1.3) brightness(0.9)';
+                    currentFilterName = 'Dramatic';
+                    break;
+                case 'soft':
+                    videoElement.style.filter = 'blur(0.3px) brightness(1.05) saturate(0.9)';
+                    currentFilterName = 'Soft';
+                    break;
+                case 'neon':
+                    videoElement.style.filter = 'hue-rotate(90deg) saturate(2) brightness(1.2)';
+                    currentFilterName = 'Neon';
+                    break;
+                case 'sepia':
+                    videoElement.style.filter = 'sepia(1) contrast(1.1) brightness(1.05)';
+                    currentFilterName = 'Sepia';
+                    break;
+                case 'polaroid':
+                    videoElement.style.filter = 'contrast(1.2) brightness(1.1) saturate(0.9) sepia(0.1)';
+                    currentFilterName = 'Polaroid';
+                    break;
+                case 'lomo':
+                    videoElement.style.filter = 'contrast(1.5) saturate(1.1) brightness(0.9) hue-rotate(-10deg)';
+                    currentFilterName = 'Lomo';
+                    break;
+                case 'cyberpunk':
+                    videoElement.style.filter = 'hue-rotate(270deg) saturate(1.8) contrast(1.3) brightness(0.8)';
+                    currentFilterName = 'Cyberpunk';
+                    break;
+                case 'pastel':
+                    videoElement.style.filter = 'saturate(0.7) brightness(1.2) contrast(0.9) hue-rotate(10deg)';
+                    currentFilterName = 'Pastel';
+                    break;
+                case 'retro':
+                    videoElement.style.filter = 'sepia(0.4) saturate(1.3) contrast(1.2) brightness(0.95) hue-rotate(15deg)';
+                    currentFilterName = 'Retro';
+                    break;
+                case 'vaporwave':
+                    videoElement.style.filter = 'hue-rotate(320deg) saturate(1.5) contrast(1.1) brightness(1.1)';
+                    currentFilterName = 'Vaporwave';
+                    break;
+                case 'film':
+                    videoElement.style.filter = 'contrast(1.1) brightness(0.95) saturate(0.9) sepia(0.1)';
+                    currentFilterName = 'Film Grain';
+                    break;
+                case 'sunset':
+                    videoElement.style.filter = 'hue-rotate(25deg) saturate(1.4) brightness(1.1) contrast(1.1)';
+                    currentFilterName = 'Golden Hour';
+                    break;
+                case 'arctic':
+                    videoElement.style.filter = 'hue-rotate(200deg) saturate(0.8) brightness(1.2) contrast(1.1)';
+                    currentFilterName = 'Arctic';
+                    break;
+                case 'instagram':
+                    videoElement.style.filter = 'saturate(1.2) contrast(1.1) brightness(1.05) hue-rotate(-5deg)';
+                    currentFilterName = 'Insta';
+                    break;
+            }
+            
+            filterDisplay.textContent = currentFilterName;
+            showNotification(`✨ ${currentFilterName} filter applied!`);
+        }
+        
+        function previewFilter(filterType) {
+            showNotification(`👀 Previewing ${filterType} filter!`);
+            setTimeout(() => {
+                closeFiltersModal();
+                startPhotobooth();
+                setTimeout(() => applyFilter(filterType), 500);
+            }, 1000);
+        }
+
+        function showProps() {
+            showNotification('🎭 Props collection loaded! Pick your favorites!');
+        }
+
+        function showSharing() {
+            showNotification('📤 Sharing options available: Download, Social Media, Email!');
+        }
+
+        function viewGallery() {
+            scrollToSection('gallery');
+            showNotification('🖼️ Viewing your photo gallery!');
+        }
+
+        // Gallery functions
+        function loadMorePhotos() {
+            if (capturedPhotostrips.length === 0) {
+                showNotification('📸 Take some photos first to see more options!');
+                return;
+            }
+            
+            const grid = document.getElementById('photoGrid');
+            const newPhotos = generateSamplePhotos(6);
+            newPhotos.forEach(photo => grid.appendChild(photo));
+            showNotification('📷 More sample photos loaded!');
+        }
+
+        function addPhotoToGallery() {
+            const grid = document.getElementById('photoGrid');
+            const newPhoto = createPhotoFrame('🎉', 'Just captured!');
+            grid.insertBefore(newPhoto, grid.firstChild);
+        }
+        
+        function updateGalleryDisplay() {
+            const grid = document.getElementById('photoGrid');
+            const loadMoreSection = document.getElementById('loadMoreSection');
+            
+            // Clear existing content
+            grid.innerHTML = '';
+            
+            if (capturedPhotostrips.length === 0) {
+                // Hide load more button
+                loadMoreSection.style.display = 'none';
+                
+                // Show empty state
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="text-8xl mb-6 opacity-50">📸</div>
+                        <h3 class="text-2xl font-display font-semibold text-royal_blue_traditional-700 mb-4">No Photos Yet</h3>
+                        <p class="text-royal_blue_traditional-600 mb-4 max-w-md mx-auto">Start your first photobooth session to see your amazing captures here!</p>
+                        ${!currentUser ? '<p class="text-mikado_yellow-600 mb-8 max-w-md mx-auto text-sm font-medium">💡 Login to save your photos permanently!</p>' : '<div class="mb-8"></div>'}
+                        <button onclick="startPhotobooth()" class="bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-8 py-4 rounded-full font-semibold transition-all transform hover:scale-105 shadow-lg">
+                            📸 Take Your First Photos
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Show load more button when there are photos
+                loadMoreSection.style.display = 'block';
+                
+                // Show captured photostrips
+                capturedPhotostrips.forEach((photostripData, index) => {
+                    const photoFrame = createRealPhotoFrame(photostripData, index);
+                    grid.appendChild(photoFrame);
+                });
+            }
+        }
+        
+        function updateGalleryWithCapturedPhotos() {
+            updateGalleryDisplay();
+        }
+
+        function generateSamplePhotos(count) {
+            const emojis = ['😊', '🎉', '🌟', '💫', '🎈', '🎊', '✨', '🌈', '🎭', '🎪'];
+            const photos = [];
+            
+            for (let i = 0; i < count; i++) {
+                const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                const photo = createPhotoFrame(emoji, `Photo ${Date.now() + i}`);
+                photos.push(photo);
+            }
+            return photos;
+        }
+
+        function createPhotoFrame(emoji, title) {
+            const frame = document.createElement('div');
+            frame.className = 'photo-frame cursor-pointer';
+            
+            // Generate 4 different emojis for the strip
+            const emojis = ['😊', '🎉', '🌟', '💫', '🎈', '🎊', '✨', '🌈', '🎭', '🎪', '🥳', '😎', '🤩', '😍'];
+            const stripEmojis = [];
+            for (let i = 0; i < 4; i++) {
+                stripEmojis.push(emojis[Math.floor(Math.random() * emojis.length)]);
+            }
+            
+            frame.innerHTML = `
+                <div class="h-full flex flex-col justify-between p-3">
+                    <!-- Photo Strip Header -->
+                    <div class="text-center mb-2">
+                        <p class="text-xs text-minimal-600 font-medium">${title}</p>
+                    </div>
+                    
+                    <!-- 4 Photo Grid -->
+                    <div class="grid grid-cols-2 gap-2 flex-1">
+                        <div class="bg-gradient-to-br from-minimal-100 to-minimal-200 rounded-lg flex items-center justify-center text-2xl border border-minimal-300/30">
+                            ${stripEmojis[0]}
+                        </div>
+                        <div class="bg-gradient-to-br from-minimal-100 to-minimal-200 rounded-lg flex items-center justify-center text-2xl border border-minimal-300/30">
+                            ${stripEmojis[1]}
+                        </div>
+                        <div class="bg-gradient-to-br from-minimal-100 to-minimal-200 rounded-lg flex items-center justify-center text-2xl border border-minimal-300/30">
+                            ${stripEmojis[2]}
+                        </div>
+                        <div class="bg-gradient-to-br from-minimal-100 to-minimal-200 rounded-lg flex items-center justify-center text-2xl border border-minimal-300/30">
+                            ${stripEmojis[3]}
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Strip Footer -->
+                    <div class="text-center mt-2">
+                        <p class="text-xs text-minimal-500">📸 Otto Photobooth</p>
+                    </div>
+                </div>
+            `;
+            frame.onclick = () => showNotification(`📸 Viewing photo strip: ${title}`);
+            return frame;
+        }
+        
+        function createRealPhotoFrame(photostripData, index) {
+            const frame = document.createElement('div');
+            frame.className = 'photo-frame cursor-pointer relative overflow-hidden';
+            
+            const date = new Date(photostripData.timestamp);
+            const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateString = date.toLocaleDateString();
+            
+            frame.innerHTML = `
+                <div class="h-full flex flex-col justify-between p-3 relative">
+                    <!-- "NEW" Badge for recent photos -->
+                    ${index < 3 ? '<div class="absolute top-1 right-1 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">NEW</div>' : ''}
+                    
+                    <!-- Photo Strip Header -->
+                    <div class="text-center mb-2">
+                        <p class="text-xs text-royal_blue_traditional-600 font-medium">${dateString}</p>
+                        <p class="text-xs text-royal_blue_traditional-500">${timeString}</p>
+                        ${photostripData.filter !== 'Original' ? `<p class="text-xs text-mikado_yellow-600 font-semibold">${photostripData.filter}</p>` : ''}
+                    </div>
+                    
+                    <!-- 4 Real Photos Grid -->
+                    <div class="grid grid-cols-2 gap-2 flex-1">
+                        ${photostripData.photos.map((photoData, photoIndex) => `
+                            <div class="bg-white rounded-lg overflow-hidden border border-royal_blue_traditional-200/30 shadow-sm">
+                                <img src="${photoData}" alt="Photo ${photoIndex + 1}" class="w-full h-full object-cover">
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Photo Strip Footer -->
+                    <div class="text-center mt-2">
+                        <p class="text-xs text-royal_blue_traditional-500">📸 Otto Photobooth</p>
+                    </div>
+                </div>
+            `;
+            
+            frame.onclick = () => {
+                showFullPhotostrip(photostripData);
+            };
+            
+            return frame;
+        }
+        
+        function showFullPhotostrip(photostripData) {
+            // Create a modal to show the full photostrip
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+            
+            const date = new Date(photostripData.timestamp);
+            const fullDateString = date.toLocaleString();
+            
+            modal.innerHTML = `
+                <div class="glass-effect rounded-3xl p-8 max-w-2xl w-full border border-white/30 text-center">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-display font-semibold text-royal_blue_traditional-800">📸 Your Photostrip</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-royal_blue_traditional-600 hover:text-royal_blue_traditional-800 text-3xl transition-colors">&times;</button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <img src="${photostripData.dataUrl}" alt="Full Photostrip" class="max-w-full max-h-96 mx-auto rounded-2xl shadow-lg border border-white/20">
+                    </div>
+                    
+                    <div class="text-sm text-royal_blue_traditional-600 mb-6">
+                        <p><strong>Captured:</strong> ${fullDateString}</p>
+                        <p><strong>Filter:</strong> ${photostripData.filter}</p>
+                    </div>
+                    
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="downloadPhotostripFromGallery('${photostripData.dataUrl}', ${photostripData.timestamp})" class="bg-gradient-to-r from-royal_blue_traditional-600 to-marian_blue-600 hover:from-royal_blue_traditional-700 hover:to-marian_blue-700 text-white px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105">
+                            💾 Download
+                        </button>
+                        <button onclick="this.closest('.fixed').remove()" class="glass-effect text-royal_blue_traditional-700 border-2 border-royal_blue_traditional-300/50 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 hover:bg-white/30">
+                            ✕ Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            showNotification(`📸 Viewing photostrip from ${fullDateString}`);
+        }
+        
+        function downloadPhotostripFromGallery(dataUrl, timestamp) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `otto-photostrip-${timestamp}.png`;
+            a.click();
+            showNotification('💾 Photostrip downloaded from gallery!');
+        }
+
+        // Social functions
+        function openSocial(platform) {
+            showNotification(`🔗 Opening ${platform.charAt(0).toUpperCase() + platform.slice(1)}!`);
+        }
+
+        // Notification system
+        function showNotification(message) {
+            // Remove existing notification
+            const existing = document.getElementById('notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = 'fixed top-24 right-6 glass-effect text-aesthetic-800 px-8 py-4 rounded-2xl shadow-2xl z-50 transform translate-x-full transition-all duration-500 border border-white/30 backdrop-blur-lg';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Slide in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Slide out after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication system
+        let currentUser = null;
+        
+        // Check for saved user session on page load
+        function checkUserSession() {
+            const savedUser = localStorage.getItem('ottoUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateAuthUI();
+            }
+        }
+        
+        function updateAuthUI() {
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const welcomeText = document.getElementById('welcomeText');
+            
+            if (currentUser) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                welcomeText.textContent = `Welcome, ${currentUser.name}! 👋`;
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        }
+        
+        // Modal functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            showNotification('🔐 Please login to continue');
+        }
+        
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            clearLoginForm();
+        }
+        
+        function showSignup() {
+            document.getElementById('signupModal').classList.remove('hidden');
+            showNotification('📝 Create your Otto account');
+        }
+        
+        function closeSignupModal() {
+            document.getElementById('signupModal').classList.add('hidden');
+            clearSignupForm();
+        }
+        
+        function switchToSignup() {
+            closeLoginModal();
+            showSignup();
+        }
+        
+        function switchToLogin() {
+            closeSignupModal();
+            showLogin();
+        }
+        
+        function clearLoginForm() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+        
+        function clearSignupForm() {
+            document.getElementById('signupName').value = '';
+            document.getElementById('signupEmail').value = '';
+            document.getElementById('signupPassword').value = '';
+            document.getElementById('signupConfirmPassword').value = '';
+        }
+        
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simulate login validation (in real app, this would be server-side)
+            const savedUsers = JSON.parse(localStorage.getItem('ottoUsers') || '[]');
+            const user = savedUsers.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = { name: user.name, email: user.email };
+                localStorage.setItem('ottoUser', JSON.stringify(currentUser));
+                updateAuthUI();
+                closeLoginModal();
+                showNotification(`🎉 Welcome back, ${user.name}!`);
+            } else {
+                showNotification('❌ Invalid email or password. Please try again.');
+            }
+        }
+        
+        // Handle signup
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showNotification('❌ Passwords do not match!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('❌ Password must be at least 6 characters long!');
+                return;
+            }
+            
+            // Check if user already exists
+            const savedUsers = JSON.parse(localStorage.getItem('ottoUsers') || '[]');
+            if (savedUsers.find(u => u.email === email)) {
+                showNotification('❌ An account with this email already exists!');
+                return;
+            }
+            
+            // Create new user
+            const newUser = { name, email, password };
+            savedUsers.push(newUser);
+            localStorage.setItem('ottoUsers', JSON.stringify(savedUsers));
+            
+            // Auto-login the new user
+            currentUser = { name, email };
+            localStorage.setItem('ottoUser', JSON.stringify(currentUser));
+            updateAuthUI();
+            closeSignupModal();
+            showNotification(`🎉 Account created successfully! Welcome, ${name}!`);
+        }
+        
+        // Handle logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('ottoUser');
+            updateAuthUI();
+            showNotification('👋 You have been logged out successfully!');
+        }
+
+        // Initialize gallery on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateGalleryDisplay();
+            checkUserSession();
+        });
+
+        // Save options functions
+        let currentPhotostripBlob = null;
+        let capturedPhotostrips = []; // Store all captured photostrips
+        
+        function showSaveOptions(blob) {
+            currentPhotostripBlob = blob;
+            
+            // Store the photostrip data for gallery
+            const canvas = document.getElementById('canvasElement');
+            const photostripData = {
+                blob: blob,
+                dataUrl: canvas.toDataURL('image/png'),
+                timestamp: Date.now(),
+                photos: [...previewPhotos], // Copy of individual photos
+                filter: currentFilterName
+            };
+            
+            capturedPhotostrips.unshift(photostripData); // Add to beginning of array
+            updateGalleryWithCapturedPhotos();
+            
+            document.getElementById('saveModal').classList.remove('hidden');
+        }
+        
+        function closeSaveModal() {
+            document.getElementById('saveModal').classList.add('hidden');
+            currentPhotostripBlob = null;
+        }
+        
+        function downloadPhotostrip() {
+            if (currentPhotostripBlob) {
+                const url = URL.createObjectURL(currentPhotostripBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `otto-photostrip-${Date.now()}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('💾 Photostrip downloaded successfully!');
+                closeSaveModal();
+            }
+        }
+        
+        function sharePhotostrip() {
+            if (currentPhotostripBlob && navigator.share) {
+                const file = new File([currentPhotostripBlob], `otto-photostrip-${Date.now()}.png`, { type: 'image/png' });
+                navigator.share({
+                    title: 'My Otto Photostrip',
+                    text: 'Check out my awesome photostrip made with Otto!',
+                    files: [file]
+                }).then(() => {
+                    showNotification('📤 Photostrip shared successfully!');
+                    closeSaveModal();
+                }).catch(() => {
+                    // Fallback to download if sharing fails
+                    downloadPhotostrip();
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                showNotification('📤 Sharing not supported, downloading instead...');
+                downloadPhotostrip();
+            }
+        }
+        
+        function retakePhotos() {
+            closeSaveModal();
+            previewPhotos = [];
+            updatePreview();
+            updatePhotoCount();
+            showNotification('🔄 Ready to retake your photos!');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        document.getElementById('filtersModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFiltersModal();
+            }
+        });
+        
+        document.getElementById('saveModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSaveModal();
+            }
+        });
+        
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+        
+        document.getElementById('signupModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSignupModal();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f0f0c401e4fde8',t:'MTc1NTE3OTYyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
